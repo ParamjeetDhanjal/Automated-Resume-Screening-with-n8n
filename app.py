@@ -1,4 +1,6 @@
-from fastapi import FastAPI, Form, UploadFile, File, HTTPException
+from fastapi import FastAPI, Form, UploadFile, File, HTTPException,Request
+from fastapi.templating import Jinja2Templates
+from fastapi.responses import HTMLResponse
 from dotenv import load_dotenv
 import requests
 import os
@@ -8,6 +10,12 @@ load_dotenv()
 app = FastAPI(title="Resume Intake API")
 
 webhook_url = os.getenv("WEBHOOK_URL")
+
+templates = Jinja2Templates(directory="templates")
+
+@app.get("/", response_class=HTMLResponse)
+async def home(request: Request):
+    return templates.TemplateResponse("index.html", {"request": request})
 
 @app.post("/analyze_resume")
 async def submit_resume(
