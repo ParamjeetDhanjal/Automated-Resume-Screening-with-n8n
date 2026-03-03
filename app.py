@@ -13,7 +13,7 @@ webhook_url = os.getenv("WEBHOOK_URL")
 
 templates = Jinja2Templates(directory="templates")
 
-@app.post("/", response_class=HTMLResponse)
+@app.post("/")
 async def home(request: Request):
     return templates.TemplateResponse("index.html", {"request": request})
 
