@@ -1,0 +1,636 @@
+{
+  "name": "resume_analyzer",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "/analyze_resume",
+        "responseMode": "responseNode",
+        "options": {
+          "allowedOrigins": "https://automated-resume-screening-with-n8n.onrender.com",
+          "binaryPropertyName": "resume",
+          "responseHeaders": {
+            "entries": [
+              {
+                "name": "Content-Type",
+                "value": "Multipart Form-Data"
+              },
+              {
+                "name": "Access-Control-Allow-Origin",
+                "value": "https://automated-resume-screening-with-n8n.onrender.com"
+              }
+            ]
+          }
+        }
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        -128,
+        112
+      ],
+      "id": "842568e1-c025-4e45-b7ae-986f41c8d59c",
+      "name": "Webhook",
+      "webhookId": "d2f43377-a96e-44d8-90d0-ee23fca83271"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "61554a82-b4a6-4d24-9353-4db43475757a",
+              "name": "=name",
+              "value": "={{$json.body.name}}",
+              "type": "string"
+            },
+            {
+              "id": "2da2df31-2d2f-4725-9c9a-548520e5fda7",
+              "name": "gmail",
+              "value": "={{$json.body.gmail}}",
+              "type": "string"
+            },
+            {
+              "id": "dec08b36-b723-4b96-9f59-6d39105a66e9",
+              "name": "phone",
+              "value": "={{$json.body.phone}}",
+              "type": "string"
+            }
+          ]
+        },
+        "includeOtherFields": true,
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        96,
+        112
+      ],
+      "id": "ec0a1706-4831-43f1-9a94-affa192c6a39",
+      "name": "Edit Fields"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "8dbefa04-7e5f-4f2f-a680-ce73cbbb3796",
+              "name": "decision",
+              "value": "={{JSON.parse($('Basic LLM Chain').item.json.text).decision}}",
+              "type": "string"
+            },
+            {
+              "id": "7aba4578-94d7-48c2-a195-ae6085bc378b",
+              "name": "fit_score",
+              "value": "={{JSON.parse($('Basic LLM Chain').item.json.text).fit_score}}",
+              "type": "string"
+            },
+            {
+              "id": "84376f08-d0a4-4354-b392-16f13c89016f",
+              "name": "summary",
+              "value": "={{JSON.parse($('Basic LLM Chain').item.json.text).summary}}",
+              "type": "string"
+            }
+          ]
+        },
+        "includeOtherFields": true,
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        896,
+        112
+      ],
+      "id": "b12659f7-808a-4be4-90b7-8884f106197c",
+      "name": "Edit Fields1"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "910f0168-01ad-4b01-bfb2-cb4f71903f9b",
+              "leftValue": "={{ $json.decision }}",
+              "rightValue": "SHORTLISTED",
+              "operator": {
+                "type": "string",
+                "operation": "equals",
+                "name": "filter.operator.equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        1120,
+        112
+      ],
+      "id": "b7125ee3-07cf-44e7-819f-b92d8c63a816",
+      "name": "If"
+    },
+    {
+      "parameters": {
+        "sendTo": "={{$('Edit Fields').item.json.gmail}}",
+        "subject": "Application Status",
+        "message": "=To: {{$('Edit Fields').item.json.gmail}}\nSubject: Application Status - Not Shortlisted\nEmail Type: HTML\nMessage: |\n  <html>\n  <body>\n  <h2>Application Update</h2>\n  <p>Dear {{$('Edit Fields').item.json.name}},</p>\n  \n  <p>Thank you for your interest in the position. After careful review of your application,\n  we regret to inform you that you have not been selected for the next round.</p>\n  \n  <p>We appreciate your time and interest in our company. We will keep your resume on file\n  for future opportunities that may match your profile.</p>\n  \n  <p>Best regards,<br>\n  HR Team</p>\n  </body>\n  </html>",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.2,
+      "position": [
+        1344,
+        336
+      ],
+      "id": "efecfd90-0af8-4eca-844b-a720ffa1d9d6",
+      "name": "Send a message",
+      "webhookId": "9b99c8e9-f686-4ad8-a156-ae063389c4c1",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "MFBlYIcFTvDCpzaT",
+          "name": "Gmail account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "options": {
+          "responseCode": 200,
+          "responseHeaders": {
+            "entries": [
+              {
+                "name": "Content-Type",
+                "value": "Value: application/json"
+              }
+            ]
+          },
+          "responseKey": "data"
+        }
+      },
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.5,
+      "position": [
+        1792,
+        -112
+      ],
+      "id": "2cb0eabc-8e9a-4e9e-a9e6-95ba202f9a86",
+      "name": "Respond to Webhook"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "d1235e6a-0ec7-4258-bc5b-0138d94f83e8",
+              "name": "status",
+              "value": "\"success\"",
+              "type": "string"
+            },
+            {
+              "id": "07fefd7e-03b2-454e-b4ca-65c6104b4ed7",
+              "name": "message ",
+              "value": "\"Resume processed\"",
+              "type": "string"
+            },
+            {
+              "id": "ee5ab61c-c160-4cec-bd02-062a23dde867",
+              "name": "candidate_name",
+              "value": "={{ $json.name }}",
+              "type": "string"
+            },
+            {
+              "id": "fc64faa2-d139-4af0-a5d4-4aaf13ecd941",
+              "name": "decision",
+              "value": "={{ $json.decision }}",
+              "type": "string"
+            },
+            {
+              "id": "ea835007-720f-4c1c-aa33-8f04551e0c51",
+              "name": "gmail",
+              "value": "={{ $json.gmail }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        1568,
+        -112
+      ],
+      "id": "c718634f-dacc-487f-b966-7e2d94e4ffa7",
+      "name": "Edit Fields2"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "bf3bba74-c897-4523-9982-00028c116163",
+              "name": "status",
+              "value": "\"Rejected Node Success\"",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        1568,
+        336
+      ],
+      "id": "d53e213e-d593-4ddc-b95d-a59fbdcc9ead",
+      "name": "Edit Fields3"
+    },
+    {
+      "parameters": {
+        "options": {
+          "responseCode": 200,
+          "responseHeaders": {
+            "entries": [
+              {
+                "name": "Content-Type",
+                "value": "application/json"
+              }
+            ]
+          }
+        }
+      },
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.5,
+      "position": [
+        1792,
+        336
+      ],
+      "id": "d688e92e-daa5-4d46-b184-a8514f15939f",
+      "name": "Respond to Webhook1"
+    },
+    {
+      "parameters": {
+        "operation": "pdf",
+        "binaryPropertyName": "resume0",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.extractFromFile",
+      "typeVersion": 1.1,
+      "position": [
+        320,
+        112
+      ],
+      "id": "fcb04931-fd2d-4bbe-8e88-a62b8c66ac03",
+      "name": "Extract from File"
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.chatTrigger",
+      "typeVersion": 1.4,
+      "position": [
+        320,
+        528
+      ],
+      "id": "2f740b25-4c71-49dd-a84b-5fb0897bb64b",
+      "name": "When chat message received",
+      "webhookId": "bb0a07dc-f5ae-4efe-837c-4755e967309a"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=You are a strict HR Resume Screener for a tech company.  CANDIDATE DETAILS: Name: {{$('Edit Fields').item.json.name}} Email: {{$('Edit Fields').item.json.gmail}} Phone: {{$('Edit Fields').item.json.phone}}  RESUME: {{$('Extract from File').item.json.text}}  SCREENING CRITERIA: - Strong backend or frontend development skills - Relevant projects with real deployment - Good academic record - Clear communication in resume  YOUR TASK: Carefully read the resume and return ONLY the following JSON. No explanation, no markdown, no code blocks. Just raw JSON.  {   \"summary\": \"Write 3-4 lines about the candidate's background, education, and experience\",   \"skills\": [\"list\", \"all\", \"technical\", \"skills\", \"found\"],   \"strengths\": [\"3 specific strengths based on resume\"],   \"weaknesses\": [\"2 honest gaps or missing things\"],   \"fit_score\": 7,   \"decision\": \"SHORTLISTED\",   \"reason\": \"One line explaining why shortlisted or rejected\" }  RULES: - fit_score must be a number between 1 and 10 - decision must be exactly SHORTLISTED if fit_score >= 6 - decision must be exactly REJECTED if fit_score < 6 - Return raw JSON only, absolutely nothing else",
+        "needsFallback": true,
+        "batching": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.chainLlm",
+      "typeVersion": 1.9,
+      "position": [
+        544,
+        112
+      ],
+      "id": "40aae91c-2877-4283-af3e-4561c799d788",
+      "name": "Basic LLM Chain"
+    },
+    {
+      "parameters": {
+        "model": "llama-3.1-8b-instant",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGroq",
+      "typeVersion": 1,
+      "position": [
+        560,
+        336
+      ],
+      "id": "05492118-314b-44a9-8225-b3fc4e078d49",
+      "name": "Groq Chat Model",
+      "credentials": {
+        "groqApi": {
+          "id": "mOclRQXGRqE6tVgs",
+          "name": "Groq account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGroq",
+      "typeVersion": 1,
+      "position": [
+        688,
+        336
+      ],
+      "id": "23711724-959e-4503-bc4b-45765bcc6899",
+      "name": "Groq Chat Model1",
+      "credentials": {
+        "groqApi": {
+          "id": "mOclRQXGRqE6tVgs",
+          "name": "Groq account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "mode": "combine",
+        "combineBy": "combineByPosition",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3.2,
+      "position": [
+        1120,
+        -160
+      ],
+      "id": "05931db6-7703-4039-a921-de2b5f174ab2",
+      "name": "Merge"
+    },
+    {
+      "parameters": {
+        "inputDataFieldName": "resume",
+        "name": "={{$('Edit Fields').item.json.name.replace(/ /g, '_')}}_SHORTLISTED_{{$now.toFormat('yyyyMMdd')}}.pdf",
+        "driveId": {
+          "__rl": true,
+          "mode": "list",
+          "value": "My Drive"
+        },
+        "folderId": {
+          "__rl": true,
+          "value": "1UacKA3xPDJBQ4wMZrCkiNahaziuDLTD8",
+          "mode": "id"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleDrive",
+      "typeVersion": 3,
+      "position": [
+        1344,
+        -112
+      ],
+      "id": "492c5fc1-d0ba-447a-b3e4-bb97670921f9",
+      "name": "Upload file",
+      "credentials": {
+        "googleDriveOAuth2Api": {
+          "id": "cTDLhv4oDg8HCPxl",
+          "name": "Google Drive account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "mode": "combine",
+        "combineBy": "combineByPosition",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3.2,
+      "position": [
+        1120,
+        384
+      ],
+      "id": "9b46b8e3-5184-4f28-b9b2-c379195d2c17",
+      "name": "Merge1"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Merge1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields": {
+      "main": [
+        [
+          {
+            "node": "Extract from File",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields1": {
+      "main": [
+        [
+          {
+            "node": "If",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 1
+          },
+          {
+            "node": "Merge1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If": {
+      "main": [
+        [
+          {
+            "node": "Upload file",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Send a message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields2": {
+      "main": [
+        [
+          {
+            "node": "Respond to Webhook",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send a message": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields3",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields3": {
+      "main": [
+        [
+          {
+            "node": "Respond to Webhook1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Extract from File": {
+      "main": [
+        [
+          {
+            "node": "Basic LLM Chain",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Groq Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Basic LLM Chain",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "When chat message received": {
+      "main": [
+        [
+          {
+            "node": "Basic LLM Chain",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Basic LLM Chain": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Groq Chat Model1": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Basic LLM Chain",
+            "type": "ai_languageModel",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "Merge": {
+      "main": [
+        [
+          {
+            "node": "Upload file",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Upload file": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Merge1": {
+      "main": [
+        [
+          {
+            "node": "Send a message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate",
+    "availableInMCP": false
+  },
+  "versionId": "276f1952-3ad8-47cd-b083-3660dde7bd22",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "291c6a14ca2e70414f288cf7a9025722bcae10fb2739caa1eb04c5b29c32b8c9"
+  },
+  "id": "NXMdRXll9lCK8rCR",
+  "tags": []
+}
