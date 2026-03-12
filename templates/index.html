@@ -5,93 +5,90 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Resume Screening</title>
   <style>
-    * {
-      box-sizing: border-box;
-      margin: 0;
-      padding: 0;
-    }
+    /* Reset and Typography */
     body {
-      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-      font-family: 'Segoe UI', sans-serif;
-      min-height: 100vh;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      padding: 1rem;
-    }
-    .form-card {
-      background: white;
-      padding: 2rem;
-      border-radius: 16px;
-      box-shadow: 0 10px 30px rgba(0,0,0,0.2);
-      width: 100%;
-      max-width: 450px;
-    }
-    .fill-tag {
-      text-align: center;
-      margin-bottom: 1.5rem;
-    }
-    .fill-tag span {
-      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-      color: white;
-      padding: 0.5rem 2rem;
-      border-radius: 50px;
-      font-weight: 600;
-      font-size: 1.2rem;
-      display: inline-block;
-    }
-    h2 {
-      text-align: center;
-      margin-bottom: 1.5rem;
+      font-family: Arial, sans-serif;
+      background-color: #f4f4f4;
       color: #333;
+      padding: 50px 20px;
     }
+
+    /* Simple Container */
+    .form-card {
+      background: #ffffff;
+      padding: 20px;
+      border: 1px solid #ccc;
+      max-width: 400px;
+      margin: 0 auto; /* Center the box */
+    }
+
+    /* Headers */
+    h2 {
+      margin-top: 0;
+      border-bottom: 2px solid #333;
+      padding-bottom: 10px;
+    }
+
+    /* Form Elements */
+    label {
+      display: block;
+      margin-bottom: 5px;
+      font-weight: bold;
+    }
+
     input {
       width: 100%;
-      padding: 0.8rem 1rem;
-      margin-bottom: 1rem;
-      border: 2px solid #e0e0e0;
-      border-radius: 8px;
-      font-size: 1rem;
-      transition: 0.3s;
+      padding: 8px;
+      margin-bottom: 15px;
+      border: 1px solid #999;
+      box-sizing: border-box; /* Ensures padding doesn't affect width */
     }
-    input:focus {
-      border-color: #667eea;
-      outline: none;
-    }
-    input[type="file"] {
-      padding: 0.5rem;
-      background: #f9f9f9;
-    }
+
+    /* Basic Button */
     button {
-      width: 100%;
-      padding: 1rem;
-      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      background-color: #4CAF50; /* Standard Green */
       color: white;
+      padding: 10px 15px;
       border: none;
-      border-radius: 8px;
-      font-size: 1.1rem;
-      font-weight: 600;
       cursor: pointer;
-      margin-top: 0.5rem;
+      width: 100%;
+      font-size: 16px;
     }
+
     button:hover {
-      opacity: 0.9;
+      background-color: #45a049;
+    }
+
+    /* Removed the 'Fill Tag' styling to keep it minimal */
+    .fill-tag {
+      font-weight: bold;
+      color: #666;
+      margin-bottom: 10px;
     }
   </style>
 </head>
 <body>
+
   <div class="form-card">
-    <div class="fill-tag">
-      <span>FILL THE FORM</span>
-    </div>
-    <h2>Resume</h2>
+    <div class="fill-tag">PLEASE FILL THE FORM</div>
+    <h2>Resume Submission</h2>
+    
     <form action="/analyze_resume" method="post" enctype="multipart/form-data">
-      <input type="text" name="name" placeholder="Your Name" required>
-      <input type="text" name="phone" placeholder="Phone Number" required>
-      <input type="email" name="gmail" placeholder="Email" required>
+      <label>Name</label>
+      <input type="text" name="name" placeholder="John Doe" required>
+
+      <label>Phone</label>
+      <input type="text" name="phone" placeholder="123-456-7890" required>
+
+      <label>Email</label>
+      <input type="email" name="gmail" placeholder="example@gmail.com" required>
+
+      <label>Upload PDF</label>
       <input type="file" name="resume" accept="application/pdf" required>
+
       <button type="submit">Submit Resume</button>
     </form>
   </div>
+
 </body>
 </html>
